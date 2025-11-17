@@ -38,11 +38,14 @@
 
 ## 4. 기능 요구사항 (Functional Requirements)
 
-1.  Notification Hub는 `POST /notifications` 요청을 받아
-    알림 정보를 DB에 PENDING 상태로 저장해야 한다.
+1.  `POST /notifications` 요청 시, 시스템은 단일 트랜잭션 내에서 다음을 모두 처리해야 한다.
+    - 알림의 메타 정보(Notification)를 DB에 저장한다.
+    - 요청된 각 채널(EMAIL, SLACK 등)에 대한 개별 전송 작업(Delivery)을 생성하고, 초기 상태를 **PENDING**으로 하여 DB에 함께 저장한다.
 
-2.  시스템은 알림 요청에 포함된 채널 목록(EMAIL, SLACK)에 따라
-    채널별 전송 작업(Delivery)을 각각 생성해야 한다.
+2.  시스템은 별도의 비동기 워커를 통해 다음 순서로 전송 작업을 처리해야 한다.
+    - 작업 선점(Locking): DB에서 PENDING 상태의 Delivery들을 일정 개수 조회한 후, 즉시 상태를 **PROCESSING**으로 변경하여 다른 워커가 중복으로 작업을 가져가지 못하도록 한다.
+    - 전송 실행: PROCESSING 상태로 변경된 Delivery 목록에 대해 실제 전송(Slack 웹훅 호출, Email 로깅 등)을 시도한다. 이 과정은 외부 시스템 호출을 포함하므로 DB 트랜잭션 외부에서 수행한다.
+    - 결과 업데이트: 전송 시도 후, 결과에 따라 각 Delivery의 상태를 SUCCESS 또는 FAILED로 업데이트한다.
 
 3.  시스템은 별도의 비동기 워커를 통해
     PENDING 상태의 Delivery를 일정 주기로 조회하고 전송을 시도해야 한다.
@@ -55,6 +58,8 @@
 
 6.  시스템은 알림 및 채널별 전송 결과를
     조회할 수 있는 API(상세 조회/목록 조회)를 제공해야 한다.
+
+7. 단일 Notification의 종합 상태(예: 처리 중, 완료, 실패)는 별도 컬럼으로 저장하지 않고, 조회 시점에 연관된 모든 Delivery들의 상태를 조합하여 동적으로 결정한다.
 
 ## 5. 비범위 (Non-Goals)
 
@@ -83,6 +88,10 @@
     구현으로 처리한다.
 -   서버 설정, DB 접속 정보 등 환경 의존적인 값은 application.yml 또는
     환경변수로 분리 관리한다.
+-   Notification 엔티티는 그 자체의 진행 상태(예: PENDING, COMPLETED)를 갖지 않는다. 
+-   전체 알림의 성공 여부는 연관된 Delivery 엔티티들의 상태를 통해 논리적으로 판단한다. 
+-   Delivery 엔티티는 PENDING, PROCESSING, SUCCESS, FAILED의 명확한 상태 값을 가지며, 비동기 워커의 작업 흐름을 제어하는 데 사용된다.-
+-   PROCESSING 상태는 작업 중복 실행을 방지하기 위한 Lock 역할을 수행한다.
 
 ## 7. 성공 지표 (Success Metrics)
 
@@ -100,14 +109,16 @@
 
 ## 8. 오픈된 질문 (Open Questions)
 
--   비동기 워커의 실행 주기는 몇 초로 설정할 것인가?
+-   비동기 워커의 실행 주기는 몇 초로 설정할 것인가?  
     (예: 3초, 5초, 10초 --- 트래픽 증가 시 조정 필요)
 
--   Slack 메시지는 단순 텍스트로 유지할 것인가,
+-   Slack 메시지는 단순 텍스트로 유지할 것인가,  
     아니면 향후 Block Kit 기반 포맷을 사용할 것인가?
 
--   Email(Mock)은 현재 콘솔 출력 방식인데,
+-   Email(Mock)은 현재 콘솔 출력 방식인데,  
     실제 SMTP 연동을 할 경우 어느 메일 서비스를 사용할 것인가?
 
--   알림 요청에 대한 인증/토큰 처리(API Key or JWT 등)는
+-   알림 요청에 대한 인증/토큰 처리(API Key or JWT 등)는  
     어떤 방식으로 적용할 것인가?
+-   비동기 워커가 PROCESSING 상태의 작업을 처리하던 중 장애로 인해 서버가 다운되면,  
+    해당 작업은 영원히 PROCESSING 상태로 남게 된다. 이런 '유령(Stuck) 작업'에 대한 처리 정책은 어떻게 할 것인가?
