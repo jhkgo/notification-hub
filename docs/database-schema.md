@@ -9,7 +9,6 @@
 |--------|------|-------------|-------------|
 | id | BIGINT | PRIMARY KEY | 알림 ID |
 | type | VARCHAR(50) | NOT NULL | 알림 유형 (ORDER_COMPLETED, PAYMENT_FAILED, SYSTEM_ALERT) |
-| status | VARCHAR(20) | NOT NULL | 알림 상태 (PENDING, COMPLETED, FAILED) |
 | title | VARCHAR(255) | NOT NULL | 알림 제목 |
 | message | TEXT | NOT NULL | 알림 내용 |
 | recipient_id | VARCHAR(100) | NOT NULL | 수신자 ID (고객 ID 또는 운영자 ID) |
@@ -55,7 +54,6 @@ notifications (1) ----< (*) notification_deliveries
 CREATE TABLE notifications (
     id BIGINT GENERATED ALWAYS AS IDENTITY PRIMARY KEY,
     type VARCHAR(50) NOT NULL,
-    status VARCHAR(20) NOT NULL,
     title VARCHAR(255) NOT NULL,
     message TEXT NOT NULL,
     recipient_id VARCHAR(100) NOT NULL,
