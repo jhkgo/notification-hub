@@ -1,6 +1,5 @@
 package com.jhkgo.notification_hub.domain.entity;
 
-import com.jhkgo.notification_hub.domain.enums.NotificationStatus;
 import com.jhkgo.notification_hub.domain.enums.NotificationType;
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -24,10 +23,6 @@ public class Notification {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false, length = 50)
     private NotificationType type;
-
-    @Enumerated(EnumType.STRING)
-    @Column(nullable = false, length = 20)
-    private NotificationStatus status;
 
     @Column(nullable = false)
     private String title;
