@@ -12,12 +12,16 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -31,6 +35,9 @@ class DeliveryProcessingServiceTest {
 
     @Autowired
     private NotificationDeliveryRepository notificationDeliveryRepository;
+
+    @MockBean
+    private ChannelDeliveryExecutor channelDeliveryExecutor;
 
     @BeforeEach
     void setUp() {
@@ -62,5 +69,24 @@ class DeliveryProcessingServiceTest {
 
         assertThat(lockedDeliveries).hasSize(1);
         assertThat(lockedDeliveries.getFirst().getStatus()).isEqualTo(DeliveryStatus.PROCESSING);
+    }
+
+    @Test
+    void shouldExecuteDeliveriesThroughChannelExecutor() {
+        Notification notification = new Notification(
+            NotificationType.SYSTEM_ALERT,
+            "시스템 장애",
+            "서버가 응답하지 않습니다",
+            "operator-1",
+            null
+        );
+        NotificationDelivery pendingDelivery = new NotificationDelivery(DeliveryChannel.SLACK, "https://slack-webhook");
+        notification.addDelivery(pendingDelivery);
+        notificationRepository.save(notification);
+
+        List<NotificationDelivery> lockedDeliveries = deliveryProcessingService.fetchAndLockPendingDeliveries(1);
+        deliveryProcessingService.executeDeliveries(lockedDeliveries);
+
+        verify(channelDeliveryExecutor, times(1)).execute(any(NotificationDelivery.class));
     }
 }

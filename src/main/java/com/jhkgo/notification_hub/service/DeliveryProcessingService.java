@@ -14,6 +14,7 @@ import java.util.List;
 public class DeliveryProcessingService {
 
     private final NotificationDeliveryRepository notificationDeliveryRepository;
+    private final ChannelDeliveryExecutor channelDeliveryExecutor;
 
     @Transactional
     public List<NotificationDelivery> fetchAndLockPendingDeliveries(int limit) {
@@ -33,5 +34,9 @@ public class DeliveryProcessingService {
         }
 
         return pendingDeliveries;
+    }
+
+    public void executeDeliveries(List<NotificationDelivery> deliveries) {
+        deliveries.forEach(channelDeliveryExecutor::execute);
     }
 }
