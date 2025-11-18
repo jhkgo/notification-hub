@@ -56,6 +56,10 @@ public class NotificationDelivery {
         this.notification = notification;
     }
 
+    public void markProcessing() {
+        this.status = DeliveryStatus.PROCESSING;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

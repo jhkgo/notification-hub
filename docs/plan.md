@@ -4,7 +4,7 @@
   - [x] 1.3 API가 202 Accepted를 반환하도록 보장한다
 
 - [ ] 2.0 비동기 워커 전송 파이프라인
-  - [ ] 2.1 PENDING Delivery를 조회하면서 즉시 PROCESSING으로 잠근다
+  - [x] 2.1 PENDING Delivery를 조회하면서 즉시 PROCESSING으로 잠근다
   - [ ] 2.2 채널별 실제 전송을 외부 트랜잭션에서 수행한다
   - [ ] 2.3 전송 결과에 따라 SUCCESS/FAILED로 상태를 업데이트한다
 
