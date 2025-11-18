@@ -45,6 +45,19 @@ public class Notification {
     @OneToMany(mappedBy = "notification", cascade = CascadeType.ALL)
     private List<NotificationDelivery> deliveries = new ArrayList<>();
 
+    public Notification(NotificationType type, String title, String message, String recipientId, String metadata) {
+        this.type = type;
+        this.title = title;
+        this.message = message;
+        this.recipientId = recipientId;
+        this.metadata = metadata;
+    }
+
+    public void addDelivery(NotificationDelivery delivery) {
+        deliveries.add(delivery);
+        delivery.assignNotification(this);
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

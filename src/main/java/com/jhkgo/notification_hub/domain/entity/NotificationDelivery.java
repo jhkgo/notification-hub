@@ -46,6 +46,16 @@ public class NotificationDelivery {
     @Column(name = "updated_at", nullable = false)
     private LocalDateTime updatedAt;
 
+    public NotificationDelivery(DeliveryChannel channel, String recipient) {
+        this.channel = channel;
+        this.recipient = recipient;
+        this.status = DeliveryStatus.PENDING;
+    }
+
+    void assignNotification(Notification notification) {
+        this.notification = notification;
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

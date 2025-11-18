@@ -29,7 +29,7 @@ public record NotificationRequest(
     List<@Valid DeliveryRequest> deliveries
 ) {
 
-    private record DeliveryRequest(
+    public record DeliveryRequest(
         @NotNull(message = "전송 채널은 필수입니다")
         DeliveryChannel channel,
 
