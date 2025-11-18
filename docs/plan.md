@@ -9,7 +9,7 @@
   - [x] 2.3 전송 결과에 따라 SUCCESS/FAILED로 상태를 업데이트한다
 
 - [ ] 3.0 스케줄 기반 워커 실행
-  - [ ] 3.1 @Scheduled 워커가 주기적으로 PENDING Delivery를 조회한다
+  - [x] 3.1 @Scheduled 워커가 주기적으로 PENDING Delivery를 조회한다
   - [ ] 3.2 실행 주기를 설정 파일로 관리한다
 
 - [ ] 4.0 Slack Webhook 전송
