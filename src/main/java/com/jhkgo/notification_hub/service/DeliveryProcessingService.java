@@ -36,7 +36,17 @@ public class DeliveryProcessingService {
         return pendingDeliveries;
     }
 
+    @Transactional
     public void executeDeliveries(List<NotificationDelivery> deliveries) {
-        deliveries.forEach(channelDeliveryExecutor::execute);
+        deliveries.forEach(delivery -> {
+            DeliveryExecutionResult result = channelDeliveryExecutor.execute(delivery);
+            if (result.succeeded()) {
+                delivery.markSuccess();
+            } else {
+                delivery.markFailed(result.errorMessage());
+            }
+        });
+
+        notificationDeliveryRepository.saveAll(deliveries);
     }
 }

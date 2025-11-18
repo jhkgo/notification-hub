@@ -60,6 +60,18 @@ public class NotificationDelivery {
         this.status = DeliveryStatus.PROCESSING;
     }
 
+    public void markSuccess() {
+        this.status = DeliveryStatus.SUCCESS;
+        this.sentAt = LocalDateTime.now();
+        this.errorMessage = null;
+    }
+
+    public void markFailed(String errorMessage) {
+        this.status = DeliveryStatus.FAILED;
+        this.errorMessage = errorMessage;
+        this.sentAt = LocalDateTime.now();
+    }
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();

@@ -20,6 +20,7 @@ import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
@@ -85,8 +86,59 @@ class DeliveryProcessingServiceTest {
         notificationRepository.save(notification);
 
         List<NotificationDelivery> lockedDeliveries = deliveryProcessingService.fetchAndLockPendingDeliveries(1);
+        when(channelDeliveryExecutor.execute(any(NotificationDelivery.class)))
+            .thenReturn(DeliveryExecutionResult.success());
         deliveryProcessingService.executeDeliveries(lockedDeliveries);
 
         verify(channelDeliveryExecutor, times(1)).execute(any(NotificationDelivery.class));
+    }
+
+    @Test
+    void shouldUpdateDeliveryStatusBasedOnExecutionResult() {
+        Notification notification = new Notification(
+            NotificationType.ORDER_COMPLETED,
+            "주문 완료",
+            "주문 번호 1234",
+            "customer-1",
+            null
+        );
+        NotificationDelivery delivery = new NotificationDelivery(DeliveryChannel.EMAIL, "user@example.com");
+        notification.addDelivery(delivery);
+        notificationRepository.save(notification);
+
+        List<NotificationDelivery> lockedDeliveries = deliveryProcessingService.fetchAndLockPendingDeliveries(1);
+
+        when(channelDeliveryExecutor.execute(lockedDeliveries.getFirst()))
+            .thenReturn(DeliveryExecutionResult.success());
+
+        deliveryProcessingService.executeDeliveries(lockedDeliveries);
+
+        NotificationDelivery updatedDelivery = notificationDeliveryRepository.findAll().getFirst();
+        assertThat(updatedDelivery.getStatus()).isEqualTo(DeliveryStatus.SUCCESS);
+    }
+
+    @Test
+    void shouldMarkDeliveryFailedWhenExecutionFails() {
+        Notification notification = new Notification(
+            NotificationType.SYSTEM_ALERT,
+            "장애",
+            "서비스 장애",
+            "operator-1",
+            null
+        );
+        NotificationDelivery delivery = new NotificationDelivery(DeliveryChannel.SLACK, "https://webhook");
+        notification.addDelivery(delivery);
+        notificationRepository.save(notification);
+
+        List<NotificationDelivery> lockedDeliveries = deliveryProcessingService.fetchAndLockPendingDeliveries(1);
+
+        when(channelDeliveryExecutor.execute(lockedDeliveries.getFirst()))
+            .thenReturn(DeliveryExecutionResult.failure("slack error"));
+
+        deliveryProcessingService.executeDeliveries(lockedDeliveries);
+
+        NotificationDelivery updatedDelivery = notificationDeliveryRepository.findAll().getFirst();
+        assertThat(updatedDelivery.getStatus()).isEqualTo(DeliveryStatus.FAILED);
+        assertThat(updatedDelivery.getErrorMessage()).isEqualTo("slack error");
     }
 }

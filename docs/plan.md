@@ -6,7 +6,7 @@
 - [ ] 2.0 비동기 워커 전송 파이프라인
   - [x] 2.1 PENDING Delivery를 조회하면서 즉시 PROCESSING으로 잠근다
   - [x] 2.2 채널별 실제 전송을 외부 트랜잭션에서 수행한다
-  - [ ] 2.3 전송 결과에 따라 SUCCESS/FAILED로 상태를 업데이트한다
+  - [x] 2.3 전송 결과에 따라 SUCCESS/FAILED로 상태를 업데이트한다
 
 - [ ] 3.0 스케줄 기반 워커 실행
   - [ ] 3.1 @Scheduled 워커가 주기적으로 PENDING Delivery를 조회한다

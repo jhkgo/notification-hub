@@ -7,7 +7,8 @@ import org.springframework.stereotype.Component;
 public class NoopChannelDeliveryExecutor implements ChannelDeliveryExecutor {
 
     @Override
-    public void execute(NotificationDelivery delivery) {
+    public DeliveryExecutionResult execute(NotificationDelivery delivery) {
         // 실제 채널 전송 구현은 이후 단계에서 채워진다.
+        return DeliveryExecutionResult.success();
     }
 }

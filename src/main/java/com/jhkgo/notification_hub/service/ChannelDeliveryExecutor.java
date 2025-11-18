@@ -4,5 +4,5 @@ import com.jhkgo.notification_hub.domain.entity.NotificationDelivery;
 
 public interface ChannelDeliveryExecutor {
 
-    void execute(NotificationDelivery delivery);
+    DeliveryExecutionResult execute(NotificationDelivery delivery);
 }
