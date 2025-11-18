@@ -98,4 +98,32 @@ class NotificationControllerTest {
             .containsExactlyInAnyOrder(DeliveryChannel.EMAIL, DeliveryChannel.SLACK);
     }
 
+    @Test
+    @Transactional
+    void shouldStoreDeliveriesWithPendingStatus() throws Exception {
+        String payload = """
+            {
+              "type": "PAYMENT_FAILED",
+              "title": "결제에 실패했습니다",
+              "message": "결제 번호 999가 실패했습니다",
+              "recipientId": "customer-1",
+              "deliveries": [
+                {
+                  "channel": "EMAIL",
+                  "recipient": "user@example.com"
+                }
+              ]
+            }
+            """;
+
+        mockMvc.perform(
+                post("/notifications")
+                    .contentType(MediaType.APPLICATION_JSON)
+                    .content(payload)
+            )
+            .andExpect(status().isAccepted());
+
+        NotificationDelivery delivery = notificationDeliveryRepository.findAll().getFirst();
+        assertThat(delivery.getStatus()).isEqualTo(DeliveryStatus.PENDING);
+    }
 }
