@@ -30,7 +30,10 @@ public class DeliveryProcessingService {
 
         if (!ids.isEmpty()) {
             notificationDeliveryRepository.updateStatusIn(ids, DeliveryStatus.PROCESSING);
-            pendingDeliveries.forEach(delivery -> delivery.markProcessing());
+            pendingDeliveries.forEach(delivery -> {
+                delivery.markProcessing();
+                initializeNotification(delivery);
+            });
         }
 
         return pendingDeliveries;
@@ -48,5 +51,13 @@ public class DeliveryProcessingService {
         });
 
         notificationDeliveryRepository.saveAll(deliveries);
+    }
+
+    private void initializeNotification(NotificationDelivery delivery) {
+        if (delivery.getNotification() != null) {
+            delivery.getNotification().getTitle();
+            delivery.getNotification().getMessage();
+            delivery.getNotification().getType();
+        }
     }
 }

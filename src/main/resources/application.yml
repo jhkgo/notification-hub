@@ -9,3 +9,6 @@ delivery:
   worker:
     max-batch-size: 10
     fixed-delay-ms: 5000
+
+slack:
+  webhook-url: https://hooks.slack.test/webhook
