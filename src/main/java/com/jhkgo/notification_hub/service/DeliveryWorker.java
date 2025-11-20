@@ -4,6 +4,7 @@ import com.jhkgo.notification_hub.domain.entity.NotificationDelivery;
 import lombok.RequiredArgsConstructor;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import com.jhkgo.notification_hub.config.DeliveryWorkerProperties;
 
 import java.util.List;
 
@@ -11,13 +12,12 @@ import java.util.List;
 @RequiredArgsConstructor
 public class DeliveryWorker {
 
-    static final int FETCH_LIMIT = 10;
-
     private final DeliveryProcessingService deliveryProcessingService;
+    private final DeliveryWorkerProperties properties;
 
-    @Scheduled(fixedDelayString = "${delivery.worker.fixed-delay-ms:5000}")
+    @Scheduled(fixedDelayString = "${delivery.worker.fixed-delay-ms}")
     public void processPendingDeliveries() {
-        List<NotificationDelivery> deliveries = deliveryProcessingService.fetchAndLockPendingDeliveries(FETCH_LIMIT);
+        List<NotificationDelivery> deliveries = deliveryProcessingService.fetchAndLockPendingDeliveries(properties.maxBatchSize());
         if (deliveries.isEmpty()) {
             return;
         }

@@ -4,3 +4,8 @@ spring:
 
   profiles:
     active: local
+
+delivery:
+  worker:
+    max-batch-size: 10
+    fixed-delay-ms: 5000

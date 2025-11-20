@@ -3,14 +3,14 @@
   - [x] 1.2 모든 Delivery의 초기 상태를 PENDING으로 설정한다
   - [x] 1.3 API가 202 Accepted를 반환하도록 보장한다
 
-- [ ] 2.0 비동기 워커 전송 파이프라인
+- [x] 2.0 비동기 워커 전송 파이프라인
   - [x] 2.1 PENDING Delivery를 조회하면서 즉시 PROCESSING으로 잠근다
   - [x] 2.2 채널별 실제 전송을 외부 트랜잭션에서 수행한다
   - [x] 2.3 전송 결과에 따라 SUCCESS/FAILED로 상태를 업데이트한다
 
 - [ ] 3.0 스케줄 기반 워커 실행
   - [x] 3.1 @Scheduled 워커가 주기적으로 PENDING Delivery를 조회한다
-  - [ ] 3.2 실행 주기를 설정 파일로 관리한다
+  - [x] 3.2 워커 max-batch-size와 실행 주기를 설정 파일로 관리한다
 
 - [ ] 4.0 Slack Webhook 전송
   - [ ] 4.1 Webhook URL을 설정에서 주입받는다
