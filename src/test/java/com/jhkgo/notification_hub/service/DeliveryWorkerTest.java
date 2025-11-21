@@ -4,6 +4,7 @@ import com.jhkgo.notification_hub.config.DeliveryWorkerProperties;
 import com.jhkgo.notification_hub.domain.entity.NotificationDelivery;
 import com.jhkgo.notification_hub.domain.enums.DeliveryChannel;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -32,6 +33,7 @@ class DeliveryWorkerTest {
         deliveryWorker = new DeliveryWorker(deliveryProcessingService, properties);
     }
 
+    @DisplayName("@Scheduled 워커가 PENDING Delivery를 가져와 실행기로 전달한다")
     @Test
     void shouldFetchAndExecutePendingDeliveriesOnSchedule() {
         NotificationDelivery delivery = new NotificationDelivery(DeliveryChannel.EMAIL, "user@example.com");
@@ -45,6 +47,7 @@ class DeliveryWorkerTest {
         verify(deliveryProcessingService).executeDeliveries(deliveries);
     }
 
+    @DisplayName("PENDING Delivery가 없으면 실행기를 호출하지 않는다")
     @Test
     void shouldNotExecuteWhenNoDeliveries() {
         when(deliveryProcessingService.fetchAndLockPendingDeliveries(10)).thenReturn(List.of());

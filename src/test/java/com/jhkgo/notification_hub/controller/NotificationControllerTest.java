@@ -9,6 +9,7 @@ import com.jhkgo.notification_hub.repository.NotificationDeliveryRepository;
 import com.jhkgo.notification_hub.repository.NotificationRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -50,6 +51,7 @@ class NotificationControllerTest {
         notificationRepository.deleteAll();
     }
 
+    @DisplayName("POST /notifications 요청 시 Notification과 채널별 Delivery가 저장된다")
     @Test
     @Transactional
     void shouldStoreNotificationAndDeliveries() throws Exception {
@@ -98,6 +100,7 @@ class NotificationControllerTest {
             .containsExactlyInAnyOrder(DeliveryChannel.EMAIL, DeliveryChannel.SLACK);
     }
 
+    @DisplayName("저장된 Delivery의 초기 상태가 PENDING으로 설정된다")
     @Test
     @Transactional
     void shouldStoreDeliveriesWithPendingStatus() throws Exception {

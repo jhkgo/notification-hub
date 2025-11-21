@@ -6,6 +6,7 @@ import com.jhkgo.notification_hub.domain.entity.NotificationDelivery;
 import com.jhkgo.notification_hub.domain.enums.DeliveryChannel;
 import com.jhkgo.notification_hub.domain.enums.NotificationType;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.MediaType;
@@ -33,6 +34,7 @@ class SlackNotifierTest {
         slackNotifier = new SlackNotifier(restTemplate, new SlackProperties("https://hooks.slack.test/webhook"));
     }
 
+    @DisplayName("Slack 메시지를 Webhook으로 전송하고 성공을 반환한다")
     @Test
     void shouldSendSlackMessageWithNotificationDetails() {
         Notification notification = new Notification(
@@ -59,6 +61,7 @@ class SlackNotifierTest {
         server.verify();
     }
 
+    @DisplayName("Slack Webhook이 에러를 반환하면 실패 결과를 반환한다")
     @Test
     void shouldReturnFailureWhenSlackRespondsWithError() {
         Notification notification = new Notification(

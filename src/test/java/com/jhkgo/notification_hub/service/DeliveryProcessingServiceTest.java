@@ -9,6 +9,7 @@ import com.jhkgo.notification_hub.repository.NotificationDeliveryRepository;
 import com.jhkgo.notification_hub.repository.NotificationRepository;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -52,6 +53,7 @@ class DeliveryProcessingServiceTest {
         notificationRepository.deleteAll();
     }
 
+    @DisplayName("PENDING Delivery를 조회하여 PROCESSING으로 상태 변경한다")
     @Test
     @Transactional
     void shouldLockPendingDeliveriesAsProcessing() {
@@ -72,6 +74,7 @@ class DeliveryProcessingServiceTest {
         assertThat(lockedDeliveries.getFirst().getStatus()).isEqualTo(DeliveryStatus.PROCESSING);
     }
 
+    @DisplayName("PROCESSING Delivery를 채널 실행기로 전달한다")
     @Test
     void shouldExecuteDeliveriesThroughChannelExecutor() {
         Notification notification = new Notification(
@@ -93,6 +96,7 @@ class DeliveryProcessingServiceTest {
         verify(channelDeliveryExecutor, times(1)).execute(any(NotificationDelivery.class));
     }
 
+    @DisplayName("채널 실행 결과가 SUCCESS이면 Delivery 상태를 SUCCESS로 기록한다")
     @Test
     void shouldUpdateDeliveryStatusBasedOnExecutionResult() {
         Notification notification = new Notification(
@@ -117,6 +121,7 @@ class DeliveryProcessingServiceTest {
         assertThat(updatedDelivery.getStatus()).isEqualTo(DeliveryStatus.SUCCESS);
     }
 
+    @DisplayName("채널 실행 결과가 실패이면 Delivery 상태와 에러 메시지를 기록한다")
     @Test
     void shouldMarkDeliveryFailedWhenExecutionFails() {
         Notification notification = new Notification(
