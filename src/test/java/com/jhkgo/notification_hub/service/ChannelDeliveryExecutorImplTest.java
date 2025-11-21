@@ -67,4 +67,15 @@ class ChannelDeliveryExecutorImplTest {
         assertThat(result.succeeded()).isFalse();
         assertThat(result.errorMessage()).contains("Unsupported channel");
     }
+
+    @Test
+    void shouldReturnFailureWhenSlackNotifierFails() {
+        NotificationDelivery delivery = new NotificationDelivery(DeliveryChannel.SLACK, "https://webhook");
+        when(slackNotifier.send(any(NotificationDelivery.class))).thenReturn(DeliveryExecutionResult.failure("slack error"));
+
+        DeliveryExecutionResult result = executor.execute(delivery);
+
+        assertThat(result.succeeded()).isFalse();
+        assertThat(result.errorMessage()).isEqualTo("slack error");
+    }
 }
