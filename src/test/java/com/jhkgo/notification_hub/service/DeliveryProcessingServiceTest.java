@@ -13,7 +13,9 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
+import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -24,8 +26,9 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.mock;
 
-@SpringBootTest
+@SpringBootTest(classes = {com.jhkgo.notification_hub.NotificationHubApplication.class, DeliveryProcessingServiceTest.MockConfig.class})
 @ActiveProfiles("test")
 class DeliveryProcessingServiceTest {
 
@@ -38,7 +41,7 @@ class DeliveryProcessingServiceTest {
     @Autowired
     private NotificationDeliveryRepository notificationDeliveryRepository;
 
-    @MockBean
+    @Autowired
     private ChannelDeliveryExecutor channelDeliveryExecutor;
 
     @BeforeEach
@@ -145,5 +148,13 @@ class DeliveryProcessingServiceTest {
         NotificationDelivery updatedDelivery = notificationDeliveryRepository.findAll().getFirst();
         assertThat(updatedDelivery.getStatus()).isEqualTo(DeliveryStatus.FAILED);
         assertThat(updatedDelivery.getErrorMessage()).isEqualTo("slack error");
+    }
+
+    @Configuration
+    static class MockConfig {
+        @Bean
+        ChannelDeliveryExecutor channelDeliveryExecutor() {
+            return mock(ChannelDeliveryExecutor.class);
+        }
     }
 }
