@@ -22,7 +22,9 @@ import org.springframework.test.web.servlet.MockMvc;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -128,5 +130,53 @@ class NotificationControllerTest {
 
         NotificationDelivery delivery = notificationDeliveryRepository.findAll().getFirst();
         assertThat(delivery.getStatus()).isEqualTo(DeliveryStatus.PENDING);
+    }
+
+    @DisplayName("Notification 목록을 기본 정보와 Delivery 요약, 페이징 정보와 함께 제공한다")
+    @Test
+    void shouldReturnNotificationListWithSummaryAndPagination() throws Exception {
+        Notification oldNotification = new Notification(
+            NotificationType.ORDER_COMPLETED,
+            "주문 완료",
+            "주문 번호 1234가 완료되었습니다",
+            "customer-1",
+            null
+        );
+        oldNotification.addDelivery(new NotificationDelivery(DeliveryChannel.EMAIL, "user1@example.com"));
+        notificationRepository.save(oldNotification);
+
+        Notification latestNotification = new Notification(
+            NotificationType.PAYMENT_FAILED,
+            "결제 실패",
+            "결제 번호 999가 실패했습니다",
+            "customer-2",
+            null
+        );
+        NotificationDelivery successDelivery = new NotificationDelivery(DeliveryChannel.EMAIL, "user2@example.com");
+        successDelivery.markSuccess();
+        NotificationDelivery failedDelivery = new NotificationDelivery(DeliveryChannel.SLACK, "https://webhook");
+        failedDelivery.markFailed("slack error");
+        latestNotification.addDelivery(successDelivery);
+        latestNotification.addDelivery(failedDelivery);
+        notificationRepository.save(latestNotification);
+
+        mockMvc.perform(
+                get("/notifications")
+                    .param("page", "0")
+                    .param("size", "1")
+                    .param("sort", "id,desc")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].id").value(latestNotification.getId()))
+            .andExpect(jsonPath("$.content[0].type").value("PAYMENT_FAILED"))
+            .andExpect(jsonPath("$.content[0].title").value("결제 실패"))
+            .andExpect(jsonPath("$.content[0].recipientId").value("customer-2"))
+            .andExpect(jsonPath("$.content[0].deliverySummary.totalCount").value(2))
+            .andExpect(jsonPath("$.content[0].deliverySummary.succeedCount").value(1))
+            .andExpect(jsonPath("$.content[0].deliverySummary.failedCount").value(1))
+            .andExpect(jsonPath("$.page").value(0))
+            .andExpect(jsonPath("$.size").value(1))
+            .andExpect(jsonPath("$.totalElements").value(2))
+            .andExpect(jsonPath("$.totalPages").value(2));
     }
 }
