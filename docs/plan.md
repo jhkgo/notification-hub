@@ -8,16 +8,16 @@
   - [x] 2.2 채널별 실제 전송을 외부 트랜잭션에서 수행한다
   - [x] 2.3 전송 결과에 따라 SUCCESS/FAILED로 상태를 업데이트한다
 
-- [ ] 3.0 스케줄 기반 워커 실행
+- [x] 3.0 스케줄 기반 워커 실행
   - [x] 3.1 @Scheduled 워커가 주기적으로 PENDING Delivery를 조회한다
   - [x] 3.2 워커 max-batch-size와 실행 주기를 설정 파일로 관리한다
 
-- [ ] 4.0 Slack Webhook 전송
+- [x] 4.0 Slack Webhook 전송
   - [x] 4.1 Webhook URL을 설정에서 주입받는다
   - [x] 4.2 Slack 메시지를 규격에 맞게 구성해 전송한다
 
 - [ ] 5.0 Email Mock 전송
-  - [ ] 5.1 Email 전송 시도를 로그 또는 콘솔로 출력한다
+  - [x] 5.1 Email 전송 시도를 로그 또는 콘솔로 출력한다
   - [ ] 5.2 전송 성공/실패 상태를 Delivery에 반영한다
 
 - [ ] 6.0 조회 API 제공
