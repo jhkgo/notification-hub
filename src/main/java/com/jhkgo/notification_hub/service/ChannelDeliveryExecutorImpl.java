@@ -20,6 +20,6 @@ public class ChannelDeliveryExecutorImpl implements ChannelDeliveryExecutor {
         if (delivery.getChannel() == DeliveryChannel.EMAIL) {
             return emailNotifier.send(delivery);
         }
-        return DeliveryExecutionResult.success();
+        return DeliveryExecutionResult.failure("Unsupported channel: " + delivery.getChannel());
     }
 }
