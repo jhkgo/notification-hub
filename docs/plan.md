@@ -30,6 +30,6 @@
     - [x] `GET /notifications/{notificationId}/deliveries` 형태로 제공한다
     - [x] 각 Delivery의 상세 정보를 제공한다
 
-- [ ] 7.0 Notification 종합 상태 계산
-  - [ ] 7.1 Delivery 상태 집계를 통해 Notification 진행 상태를 계산한다
-  - [ ] 7.2 계산 로직을 조회 API 응답에 포함한다
+- [x] 7.0 Notification 종합 상태 계산
+  - [x] 7.1 Delivery 상태 집계를 통해 Notification 진행 상태를 계산한다
+  - [x] 7.2 계산 로직을 Notification 목록 조회 API 응답에 포함한다

@@ -11,6 +11,7 @@ import com.jhkgo.notification_hub.dto.NotificationListProjection;
 import com.jhkgo.notification_hub.dto.DeliveryResponse;
 import com.jhkgo.notification_hub.repository.NotificationDeliveryRepository;
 import com.jhkgo.notification_hub.repository.NotificationRepository;
+import com.jhkgo.notification_hub.domain.enums.NotificationProgressStatus;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -90,9 +91,15 @@ public class NotificationService {
     }
 
     private NotificationResponse toResponse(NotificationListProjection projection) {
+        NotificationProgressStatus progressStatus = calculateProgressStatus(
+            projection.getTotalCount(),
+            projection.getSucceedCount(),
+            projection.getFailedCount()
+        );
         return new NotificationResponse(
             projection.getId(),
             projection.getType(),
+            progressStatus,
             projection.getTitle(),
             projection.getMessage(),
             projection.getRecipientId(),
@@ -113,5 +120,16 @@ public class NotificationService {
             delivery.getSentAt(),
             delivery.getErrorMessage()
         );
+    }
+
+    private NotificationProgressStatus calculateProgressStatus(long totalCount, long succeedCount, long failedCount) {
+        long finished = succeedCount + failedCount;
+        if (totalCount == 0 || finished < totalCount) {
+            return NotificationProgressStatus.PROCESSING;
+        }
+        if (failedCount > 0) {
+            return NotificationProgressStatus.FAILED;
+        }
+        return NotificationProgressStatus.SUCCESS;
     }
 }

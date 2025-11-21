@@ -212,4 +212,79 @@ class NotificationControllerTest {
             .andExpect(jsonPath("$[1].status").value("FAILED"))
             .andExpect(jsonPath("$[1].errorMessage").value("slack error"));
     }
+
+    @DisplayName("Delivery 상태를 집계하여 Notification 진행 상태를 계산해 응답한다")
+    @Test
+    void shouldReturnNotificationProgressStatus() throws Exception {
+        Notification successNotification = new Notification(
+            NotificationType.ORDER_COMPLETED,
+            "주문 완료",
+            "주문 번호 1",
+            "customer-1",
+            null
+        );
+        NotificationDelivery success = new NotificationDelivery(DeliveryChannel.EMAIL, "user1@example.com");
+        success.markSuccess();
+        successNotification.addDelivery(success);
+        notificationRepository.save(successNotification);
+
+        Notification failedNotification = new Notification(
+            NotificationType.PAYMENT_FAILED,
+            "결제 실패",
+            "결제 번호 2",
+            "customer-2",
+            null
+        );
+        NotificationDelivery failed = new NotificationDelivery(DeliveryChannel.EMAIL, "user2@example.com");
+        failed.markFailed("error");
+        failedNotification.addDelivery(failed);
+        notificationRepository.save(failedNotification);
+
+        Notification inProgressNotification = new Notification(
+            NotificationType.SYSTEM_ALERT,
+            "장애",
+            "시스템 장애",
+            "operator-1",
+            null
+        );
+        NotificationDelivery pending = new NotificationDelivery(DeliveryChannel.SLACK, "https://webhook");
+        inProgressNotification.addDelivery(pending);
+        notificationRepository.save(inProgressNotification);
+
+        Notification partialNotification = new Notification(
+            NotificationType.ORDER_COMPLETED,
+            "부분 진행",
+            "주문 번호 3",
+            "customer-3",
+            null
+        );
+        NotificationDelivery success2 = new NotificationDelivery(DeliveryChannel.EMAIL, "user3@example.com");
+        success2.markSuccess();
+        NotificationDelivery pending2 = new NotificationDelivery(DeliveryChannel.SLACK, "https://webhook-2");
+        partialNotification.addDelivery(success2);
+        partialNotification.addDelivery(pending2);
+        notificationRepository.save(partialNotification);
+
+        Notification zeroDeliveryNotification = new Notification(
+            NotificationType.SYSTEM_ALERT,
+            "빈 전송",
+            "메시지 없음",
+            "operator-2",
+            null
+        );
+        notificationRepository.save(zeroDeliveryNotification);
+
+        mockMvc.perform(
+                get("/notifications")
+                    .param("page", "0")
+                    .param("size", "10")
+                    .param("sort", "id,asc")
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$.content[0].progressStatus").value("SUCCESS"))
+            .andExpect(jsonPath("$.content[1].progressStatus").value("FAILED"))
+            .andExpect(jsonPath("$.content[2].progressStatus").value("PROCESSING"))
+            .andExpect(jsonPath("$.content[3].progressStatus").value("PROCESSING"))
+            .andExpect(jsonPath("$.content[4].progressStatus").value("PROCESSING"));
+    }
 }
