@@ -21,8 +21,14 @@
   - [x] 5.2 전송 성공/실패 상태를 Delivery에 반영한다
 
 - [ ] 6.0 조회 API 제공
-  - [ ] 6.1 단건 Notification 상세 조회 API를 제공한다
-  - [ ] 6.2 목록 조회 API를 제공하고 Delivery 상태까지 포함한다
+  - [ ] 6.1 Notification 목록 조회 API를 제공한다
+    - [ ] Notification 기본 정보를 제공한다
+    - [ ] Delivery 요약 정보(총 건수, 상태별 건수)를 포함한다
+      - 예: `totalCount`, `succeedCount`, `failedCount`
+    - [ ] `page`, `size` 파라미터로 페이징을 지원한다
+  - [ ] 6.2 Notification별 Delivery 목록 조회 API를 제공한다
+    - [ ] `GET /notifications/{notificationId}/deliveries` 형태로 제공한다
+    - [ ] 각 Delivery의 상세 정보를 제공한다
 
 - [ ] 7.0 Notification 종합 상태 계산
   - [ ] 7.1 Delivery 상태 집계를 통해 Notification 진행 상태를 계산한다
