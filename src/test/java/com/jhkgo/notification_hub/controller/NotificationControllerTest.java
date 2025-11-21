@@ -179,4 +179,37 @@ class NotificationControllerTest {
             .andExpect(jsonPath("$.totalElements").value(2))
             .andExpect(jsonPath("$.totalPages").value(2));
     }
+
+    @DisplayName("특정 Notification의 Delivery 목록을 상세 정보로 제공한다")
+    @Test
+    void shouldReturnDeliveryListByNotification() throws Exception {
+        Notification notification = new Notification(
+            NotificationType.SYSTEM_ALERT,
+            "장애",
+            "서비스 장애",
+            "operator-1",
+            null
+        );
+        NotificationDelivery emailDelivery = new NotificationDelivery(DeliveryChannel.EMAIL, "user@example.com");
+        emailDelivery.markSuccess();
+        NotificationDelivery slackDelivery = new NotificationDelivery(DeliveryChannel.SLACK, "https://webhook");
+        slackDelivery.markFailed("slack error");
+        notification.addDelivery(emailDelivery);
+        notification.addDelivery(slackDelivery);
+        notificationRepository.save(notification);
+
+        mockMvc.perform(
+                get("/notifications/{id}/deliveries", notification.getId())
+            )
+            .andExpect(status().isOk())
+            .andExpect(jsonPath("$[0].id").value(emailDelivery.getId()))
+            .andExpect(jsonPath("$[0].channel").value("EMAIL"))
+            .andExpect(jsonPath("$[0].status").value("SUCCESS"))
+            .andExpect(jsonPath("$[0].recipient").value("user@example.com"))
+            .andExpect(jsonPath("$[0].sentAt").isNotEmpty())
+            .andExpect(jsonPath("$[1].id").value(slackDelivery.getId()))
+            .andExpect(jsonPath("$[1].channel").value("SLACK"))
+            .andExpect(jsonPath("$[1].status").value("FAILED"))
+            .andExpect(jsonPath("$[1].errorMessage").value("slack error"));
+    }
 }

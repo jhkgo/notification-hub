@@ -20,15 +20,15 @@
   - [x] 5.1 Email 전송 시도를 로그 또는 콘솔로 출력한다
   - [x] 5.2 전송 성공/실패 상태를 Delivery에 반영한다
 
-- [ ] 6.0 조회 API 제공
+- [x] 6.0 조회 API 제공
   - [x] 6.1 Notification 목록 조회 API를 제공한다
     - [x] Notification 기본 정보를 제공한다
     - [x] Delivery 요약 정보(총 건수, 상태별 건수)를 포함한다
       - 예: `totalCount`, `succeedCount`, `failedCount`
     - [x] `page`, `size` 파라미터로 페이징을 지원한다
-  - [ ] 6.2 Notification별 Delivery 목록 조회 API를 제공한다
-    - [ ] `GET /notifications/{notificationId}/deliveries` 형태로 제공한다
-    - [ ] 각 Delivery의 상세 정보를 제공한다
+  - [x] 6.2 Notification별 Delivery 목록 조회 API를 제공한다
+    - [x] `GET /notifications/{notificationId}/deliveries` 형태로 제공한다
+    - [x] 각 Delivery의 상세 정보를 제공한다
 
 - [ ] 7.0 Notification 종합 상태 계산
   - [ ] 7.1 Delivery 상태 집계를 통해 Notification 진행 상태를 계산한다

@@ -22,4 +22,6 @@ public interface NotificationDeliveryRepository extends JpaRepository<Notificati
         WHERE d.id IN :ids
         """)
     void updateStatusIn(@Param("ids") List<Long> ids, @Param("status") DeliveryStatus status);
+
+    List<NotificationDelivery> findByNotificationIdOrderByIdAsc(Long notificationId);
 }

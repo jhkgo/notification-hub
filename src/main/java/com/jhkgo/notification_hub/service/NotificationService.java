@@ -8,12 +8,16 @@ import com.jhkgo.notification_hub.dto.NotificationRequest;
 import com.jhkgo.notification_hub.dto.NotificationPageResponse;
 import com.jhkgo.notification_hub.dto.NotificationResponse;
 import com.jhkgo.notification_hub.dto.NotificationListProjection;
+import com.jhkgo.notification_hub.dto.DeliveryResponse;
+import com.jhkgo.notification_hub.repository.NotificationDeliveryRepository;
 import com.jhkgo.notification_hub.repository.NotificationRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
 
 import java.util.Map;
 import java.util.List;
@@ -23,6 +27,7 @@ import java.util.List;
 public class NotificationService {
 
     private final NotificationRepository notificationRepository;
+    private final NotificationDeliveryRepository notificationDeliveryRepository;
     private final ObjectMapper objectMapper;
 
     @Transactional
@@ -62,6 +67,17 @@ public class NotificationService {
         );
     }
 
+    @Transactional(readOnly = true)
+    public List<DeliveryResponse> listDeliveries(Long notificationId) {
+
+        notificationRepository.findById(notificationId)
+                .orElseThrow(() -> new ResponseStatusException(HttpStatus.NOT_FOUND, "Notification not found: " + notificationId));
+
+        return notificationDeliveryRepository.findByNotificationIdOrderByIdAsc(notificationId).stream()
+            .map(this::toResponse)
+            .toList();
+    }
+
     private String toMetadataString(Map<String, Object> metadata) {
         if (metadata == null) {
             return null;
@@ -85,6 +101,17 @@ public class NotificationService {
                 (int) projection.getSucceedCount(),
                 (int) projection.getFailedCount()
             )
+        );
+    }
+
+    private DeliveryResponse toResponse(NotificationDelivery delivery) {
+        return new DeliveryResponse(
+            delivery.getId(),
+            delivery.getChannel(),
+            delivery.getStatus(),
+            delivery.getRecipient(),
+            delivery.getSentAt(),
+            delivery.getErrorMessage()
         );
     }
 }
