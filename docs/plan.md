@@ -16,9 +16,9 @@
   - [x] 4.1 Webhook URL을 설정에서 주입받는다
   - [x] 4.2 Slack 메시지를 규격에 맞게 구성해 전송한다
 
-- [ ] 5.0 Email Mock 전송
+- [x] 5.0 Email Mock 전송
   - [x] 5.1 Email 전송 시도를 로그 또는 콘솔로 출력한다
-  - [ ] 5.2 전송 성공/실패 상태를 Delivery에 반영한다
+  - [x] 5.2 전송 성공/실패 상태를 Delivery에 반영한다
 
 - [ ] 6.0 조회 API 제공
   - [ ] 6.1 단건 Notification 상세 조회 API를 제공한다

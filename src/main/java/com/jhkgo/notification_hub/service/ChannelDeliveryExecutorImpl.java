@@ -10,11 +10,15 @@ import org.springframework.stereotype.Component;
 public class ChannelDeliveryExecutorImpl implements ChannelDeliveryExecutor {
 
     private final SlackNotifier slackNotifier;
+    private final EmailNotifier emailNotifier;
 
     @Override
     public DeliveryExecutionResult execute(NotificationDelivery delivery) {
         if (delivery.getChannel() == DeliveryChannel.SLACK) {
             return slackNotifier.send(delivery);
+        }
+        if (delivery.getChannel() == DeliveryChannel.EMAIL) {
+            return emailNotifier.send(delivery);
         }
         return DeliveryExecutionResult.success();
     }
